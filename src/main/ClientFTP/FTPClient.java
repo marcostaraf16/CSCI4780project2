@@ -1,3 +1,5 @@
+package ClientFTP;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -35,14 +37,14 @@ public class FTPClient {
 				Client client = new Client(server, portNumber, tPortNumber);
 				String command = "";
 				Scanner scan = new Scanner(System.in);
-				
+
 				/*
-				 * give a stream of inputs to the server, processes each input through the client 
+				 * give a stream of inputs to the server, processes each input through the client
 				 * using the methods associated with each command.
 				*/
 				while (true) {
 					System.out.print("myftp> ");
-					
+
 					//parse the input into a command and argument
 					command = scan.nextLine();
 					String [] split = command.split(" ", 2);
@@ -92,7 +94,7 @@ public class FTPClient {
 
 
 class Client{
-	
+
 	Socket soc;
 	Socket terminateSoc;
 	DataInputStream input;
@@ -117,9 +119,9 @@ class Client{
 		}//catch
 	}//constructor
 
-	
-	
-	
+
+
+
 	void pwd() {
 		try {
 			out.writeUTF("pwd");
@@ -137,7 +139,7 @@ class Client{
 			System.out.println(e);
 		}//catch
 	}//cd
-	
+
 	void quit() {
 		try {
 			out.writeUTF("quit");
@@ -187,10 +189,10 @@ class Client{
 		try {
 			//writes command to server
 			out.writeUTF("get " + file);
-			
+
 			//gets server message
 			String message = input.readUTF();
-			
+
 			//receives of the file is not found
 			if (message.compareTo("File not Found") == 0) {
 				System.out.println("File Not Found");
@@ -214,7 +216,7 @@ class Client{
 		}//try
 		catch(Exception e) {System.out.println(e);}
 	}
-	
+
 	void threadedGet(String file) {
 		final Thread inThread = new Thread() {
 			@Override
@@ -222,10 +224,10 @@ class Client{
 				try {
 					//writes command to server
 					out.writeUTF("get " + file);
-					
+
 					//gets server message
 					String message = input.readUTF();
-					
+
 					//receives of the file is not found
 					if (message.compareTo("File not Found") == 0) {
 						System.out.println("File Not Found");
@@ -259,10 +261,10 @@ class Client{
 		try {
 			//gives command to server
 			out.writeUTF("put " + file);
-			
+
 			//gets server message
 			String serverMessage = input.readUTF();
-			
+
 			//checks if file already exists
 			if (serverMessage.compareTo("File Already Exists") == 0) {
 				System.out.println(serverMessage);
@@ -270,7 +272,7 @@ class Client{
 			//sends file to the server
 			else if (serverMessage.compareTo("Ready") == 0) {
 				System.out.println("Sending File ...");
-				
+
 				FileInputStream fileInput = new FileInputStream(f);
 				out.writeLong(f.length());
 				byte [] buf = new byte[4*1024];
@@ -285,7 +287,7 @@ class Client{
 		}//try
 		catch (Exception e) {System.out.println(e);}
 	}
-	
+
 	void threadedPut(String file) {
 		final Thread outThread = new Thread() {
 			@Override
@@ -294,10 +296,10 @@ class Client{
 				try {
 					//gives command to server
 					out.writeUTF("put " + file);
-					
+
 					//gets server message
 					String serverMessage = input.readUTF();
-					
+
 					//checks if file already exists
 					if (serverMessage.compareTo("File Already Exists") == 0) {
 						System.out.println(serverMessage);
@@ -305,7 +307,7 @@ class Client{
 					//sends file to the server
 					else if (serverMessage.compareTo("Ready") == 0) {
 						System.out.println("Sending File ...");
-						
+
 						FileInputStream fileInput = new FileInputStream(f);
 						out.writeLong(f.length());
 						byte [] buf = new byte[4*1024];
