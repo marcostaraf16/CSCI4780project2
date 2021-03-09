@@ -137,8 +137,8 @@ class Controller{
     }//getTerminates
 
     Boolean clientAvailable(){
-        for (Server s : clients) {
-            if (s == null) {
+        for (int i = 0; i < clients.length(); i++) {
+            if (clients[i].compareTo(null) == 0) {
                 return true;
             } else if (!s.isAlive()) {
                 return true;
@@ -148,8 +148,8 @@ class Controller{
     }//getClients
 
     void addClient(Socket socket){
-        for (Server s : clients) {
-            if (s == null) {
+        for (int i = 0; i < clients.length(); i++) {
+            if (clients[i].compareTo(null) == 0) {
                 s = new Server(socket, this);
                 break;
             } else if (!s.isAlive()) {
