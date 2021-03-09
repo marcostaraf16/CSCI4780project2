@@ -64,16 +64,16 @@ class Operator extends Thread{
     }//constructor
 
     public void run(){
-        while (true){
-            try{
+        try{
+            while (true){
                 if (middle.clientAvailable()) {
                     middle.addClient(server.accept());
                     System.out.println("New Client Connected");
                 }//if
-            } catch (Exception e) {
-                System.out.println(e);
-            }//try-catch
-        }//while
+            }//while
+        } catch (Exception e) {
+            System.out.println(e);
+        }//try-catch
     }//run
 }//Operator
 
