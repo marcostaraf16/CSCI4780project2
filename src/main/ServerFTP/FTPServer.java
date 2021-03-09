@@ -121,8 +121,8 @@ class Controller{
     private int processID = 0;
 
     public Controller() {
-        for (int i = 0; i < clients.length(); i++) {
-            clients[i] = new Server(-1, this);
+        for (int i = 0; i < 5; i++) {
+            clients[i] = new Server(-1);
         }//for
     }//for
 
@@ -178,23 +178,25 @@ class Server extends Thread{
     private String currentDirectory = null;
     private String relativeDirectory = null;
 
+    public Server(int id){
+        if (id == -1) {
+            dummy = true;
+        }//if
+    }//Server
+
     public Server(Socket port, Controller host){
         try{
             master = host;
             socket = port;
 
-            if (socket == -1) {
-                dummy = true;
-            } else {
-                //store starting directory to memory
-                currentDirectory = System.getProperty("user.dir");
-                relativeDirectory = "";
+            //store starting directory to memory
+            currentDirectory = System.getProperty("user.dir");
+            relativeDirectory = "";
 
-                //set up data input and output streams and initialize IO storage variable
-                in = new DataInputStream(socket.getInputStream());
-                out = new DataOutputStream(socket.getOutputStream());
-                run();
-            }//if-else
+            //set up data input and output streams and initialize IO storage variable
+            in = new DataInputStream(socket.getInputStream());
+            out = new DataOutputStream(socket.getOutputStream());
+            run();
         }catch (IOException e) {
             System.out.println(e);
         }//try-catch
