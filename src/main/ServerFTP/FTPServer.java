@@ -34,48 +34,9 @@ class MyFTPServer{
 
     public static void main(String[] args) {
         try {
-            //process initialization data
-            String port = args[0];
-            int portNumber = Integer.parseInt(port);
-            String tPort = args[1];
-            int tPortNumber = Integer.parseInt(tPort);
-
             Controller middle = new Controller();
-
-            //set up threads to listen to client connections
-            final Thread operator = new Thread(){
-                @Override
-                public void run(){
-                    //set up server port
-                    ServerSocket server = new ServerSocket(portNumber);
-                    System.out.println("Operator started on port " + port);
-
-                    while (true){
-                        //set up server socket on connection
-                        if (middle.clientAvailable()) {
-                            middle.addClient(server.accept());
-                            System.out.println("New Client Connected");
-                        }//if
-                    }//while
-                }//run
-            };//operator
-            final Thread terminator = new Thread(){
-                @Override
-                public void run(){
-                    ServerSocket listener = new ServerSocket(tPortNumber);
-                    System.out.println("Terminator started on port " + tport);
-                    Socket socket = null;
-                    DataInputStream in = null;
-                    int input = -1;
-
-                    while(true){
-                        socket = listener.accept();
-                        in = new DataInputStream(socket.getInputStream());
-                        input = in.readInt();
-                        middle.terminateProcess(input);
-                    }//while
-                }//run
-            };//terminator
+            final Operator operator = new Operator(args[0], middle);
+            final Terminator terminator = new Terminator(args[1], middle);
             operator.run();
             terminator.run();
         } catch(Exception error) {
@@ -85,11 +46,77 @@ class MyFTPServer{
 
 }//MyFTPServer
 
+class Operator extends Thread{
+
+    private int portNumber;
+    private ServerSocket server = null;
+    private Controller middle = null;
+
+    public Operator(String port, Controller host){
+        try {
+            middle = host;
+            portNumber = Integer.parseInt(port);
+            server = new ServerSocket(portNumber);
+            System.out.println("Operator started on port " + port);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }//constructor
+
+    public void run(){
+        while (true){
+            try{
+                if (middle.clientAvailable()) {
+                    middle.addClient(server.accept());
+                    System.out.println("New Client Connected");
+                }//if
+            } catch (Exception e) {
+                System.out.println(e);
+            }//try-catch
+        }//while
+    }//run
+}//Operator
+
+class Terminator extends Thread{
+
+    private int tPortNumber;
+    private Socket socket = null;
+    private ServerSocket listener = null;
+    private DataInputStream in = null;
+    private Controller middle = null;
+    private int input = -1;
+
+    public Terminator(String tport, Controller host){
+        try {
+            middle = host;
+            tPortNumber = Integer.parseInt(tport);
+            listener = new ServerSocket(tPortNumber);
+            System.out.println("Terminator started on port " + tport);
+        } catch (Exception e) {
+            System.out.println(e);
+        }//try-catch
+    }//constructor
+
+    @Override
+    public void run(){
+        while(true){
+            try {
+                socket = listener.accept();
+                in = new DataInputStream(socket.getInputStream());
+                input = in.readInt();
+                middle.terminateProcess(input);
+            } catch (Exception e) {
+                System.out.println(e);
+            }//try-catch
+        }//while
+    }//run
+}//Terminator
+
 class Controller{
 
     private int activeClients = 0;
-    private Server clients = new Server[5];
-    private int termList = new int[10];
+    private Server[] clients = new Server[5];
+    private int[] termList = new int[10];
     private int iterator = 0;
     private int processID = 0;
 
@@ -111,7 +138,7 @@ class Controller{
 
     Boolean clientAvailable(){
         for (Server s : clients) {
-            if (s.compareTo(null) == 0) {
+            if (s == null) {
                 return true;
             } else if (!s.isAlive()) {
                 return true;
@@ -122,7 +149,7 @@ class Controller{
 
     void addClient(Socket socket){
         for (Server s : clients) {
-            if (s.compareTo(null) == 0) {
+            if (s == null) {
                 s = new Server(socket, this);
                 break;
             } else if (!s.isAlive()) {
@@ -156,7 +183,6 @@ class Server extends Thread{
             //set up data input and output streams and initialize IO storage variable
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
-            String input = "";
             run();
         }catch (IOException e) {
             System.out.println(e);
@@ -164,23 +190,24 @@ class Server extends Thread{
     }//constructor
 
     public void run(){
-        //process all inputs from the client
-        while(!input.equals("quit")){
-            try {
+        try {
+            //process all inputs from the client
+            String input = "";
+            while(!input.equals("quit")){
                 input = in.readUTF();
                 System.out.println("Request recieved...");
                 System.out.println(input);
                 process(input);
-            } catch(IOException i) {
-                System.out.println(i);
-            }//try-catch
-        }//while
+            }//while
 
-        //terminate socket on disconnect
-        out.writeUTF("Confirm");
-        System.out.println("Closing connection...");
-        socket.close();
-        in.close();
+            //terminate socket on disconnect
+            out.writeUTF("Confirm");
+            System.out.println("Closing connection...");
+            socket.close();
+            in.close();
+        } catch(IOException i) {
+            System.out.println(i);
+        }//try-catch
     }//run
 
     /*
@@ -245,8 +272,9 @@ class Server extends Thread{
             //sends file if it exists
             } else {
                 System.out.println("Sending file...");
+                Boolean terminate = false;
                 int id = master.getPID();
-                out.writeUTF(id);
+                out.writeInt(id);
                 FileInputStream sendFile = new FileInputStream(target);
                 out.writeLong(target.length());
                 byte [] buf = new byte[4*1024];
@@ -289,7 +317,7 @@ class Server extends Thread{
             } else {
                 System.out.println("Recieving file...");
                 int id = master.getPID();
-                out.writeUTF(id);
+                out.writeInt(id);
                 FileOutputStream recieveFile = new FileOutputStream(target);
                 Boolean terminate = false;
                 long size = in.readLong();
