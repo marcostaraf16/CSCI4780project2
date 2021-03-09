@@ -47,7 +47,7 @@ class MyFTPServer{
                 @Override
                 public void run(){
                     //set up server port
-                    ServerSocket server = new ServerSocket(port);
+                    ServerSocket server = new ServerSocket(portNumber);
                     System.out.println("Operator started on port " + port);
 
                     while (true){
@@ -62,17 +62,17 @@ class MyFTPServer{
             final Thread terminator = new Thread(){
                 @Override
                 public void run(){
-                    ServerSocket listener = new ServerSocket(tport);
+                    ServerSocket listener = new ServerSocket(tPortNumber);
                     System.out.println("Terminator started on port " + tport);
                     Socket socket = null;
                     DataInputStream in = null;
                     int input = -1;
 
                     while(true){
-                        socket = server.accept();
+                        socket = listener.accept();
                         in = new DataInputStream(socket.getInputStream());
                         input = in.readInt();
-                        middle.terminateProcess();
+                        middle.terminateProcess(input);
                     }//while
                 }//run
             };//terminator
