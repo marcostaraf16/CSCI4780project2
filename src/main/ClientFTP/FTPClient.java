@@ -358,7 +358,7 @@ class Client{
 
 	void terminate(String commandID) {
 		try {
-            int id = Integer.parseInt(commandID)
+            int id = Integer.parseInt(commandID);
 			terminateOut.writeInt(id);
 		}catch (Exception e) {
             System.out.println("Error in Client.terminate()");
