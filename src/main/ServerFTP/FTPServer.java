@@ -40,6 +40,7 @@ class MyFTPServer{
             operator.run();
             terminator.run();
         } catch(Exception error) {
+            System.out.println("Error in MyFTPServer.main()");
             System.out.println(error);
         }//try-catch
     }//main
@@ -49,6 +50,7 @@ class MyFTPServer{
 class Operator extends Thread{
 
     private int portNumber;
+    private Socket client = null;
     private ServerSocket server = null;
     private Controller middle = null;
 
@@ -59,6 +61,7 @@ class Operator extends Thread{
             server = new ServerSocket(portNumber);
             System.out.println("Operator started on port " + port);
         } catch (Exception e) {
+            System.out.println("Error in Operator constructor");
             System.out.println(e);
         }
     }//constructor
@@ -66,12 +69,14 @@ class Operator extends Thread{
     public void run(){
         try{
             while (true){
+                client = server.accept();
                 if (middle.clientAvailable()) {
-                    middle.addClient(server.accept());
+                    middle.addClient(client);
                     System.out.println("New Client Connected");
                 }//if
             }//while
         } catch (Exception e) {
+            System.out.println("Error in Operator.run()");
             System.out.println(e);
         }//try-catch
     }//run
@@ -93,22 +98,24 @@ class Terminator extends Thread{
             listener = new ServerSocket(tPortNumber);
             System.out.println("Terminator started on port " + tport);
         } catch (Exception e) {
+            System.out.println("Error in Terminator constructor");
             System.out.println(e);
         }//try-catch
     }//constructor
 
     @Override
     public void run(){
-        while(true){
-            try {
+        try {
+            while(true){
                 socket = listener.accept();
                 in = new DataInputStream(socket.getInputStream());
                 input = in.readInt();
                 middle.terminateProcess(input);
-            } catch (Exception e) {
-                System.out.println(e);
-            }//try-catch
-        }//while
+            }//while
+        } catch (Exception e) {
+            System.out.println("Error in Terminator.run()");
+            System.out.println(e);
+        }//try-catch
     }//run
 }//Terminator
 
@@ -198,6 +205,7 @@ class Server extends Thread{
             out = new DataOutputStream(socket.getOutputStream());
             run();
         }catch (IOException e) {
+            System.out.println("Error in Server constructor");
             System.out.println(e);
         }//try-catch
     }//constructor
@@ -219,6 +227,7 @@ class Server extends Thread{
             socket.close();
             in.close();
         } catch(IOException i) {
+            System.out.println("Error in Server.run()");
             System.out.println(i);
         }//try-catch
     }//run
