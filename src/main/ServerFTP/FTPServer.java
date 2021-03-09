@@ -41,7 +41,6 @@ class MyFTPServer{
             int tPortNumber = Integer.parseInt(tPort);
 
             Controller middle = new Controller();
-            Controller.run();
 
             //set up threads to listen to client connections
             final Thread operator = new Thread(){
@@ -72,7 +71,8 @@ class MyFTPServer{
                     while(true){
                         socket = server.accept();
                         in = new DataInputStream(socket.getInputStream());
-
+                        input = in.readInt();
+                        middle.terminateProcess();
                     }//while
                 }//run
             };//terminator
@@ -85,7 +85,7 @@ class MyFTPServer{
 
 }//MyFTPServer
 
-class Controller extends Thread{
+class Controller{
 
     private int activeClients = 0;
     private Server clients = new Server[5];
@@ -93,12 +93,11 @@ class Controller extends Thread{
     private int iterator = 0;
     private int processID = 0;
 
-    public void run(){
-
-    }//run
-
-    void terminateProcess(){
-        
+    void terminateProcess(int id){
+        if (iterator >= 10) {
+            iterator = 0;
+        }//if
+        termList[iterator] = id;
     }//terminateProcess
 
     int getPID(){
@@ -158,13 +157,7 @@ class Server extends Thread{
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
             String input = "";
-
-            //terminate socket on disconnect
-            out.writeUTF("Confirm");
-            System.out.println("Closing connection...");
-            socket.close();
-            in.close();
-
+            run();
         }catch (IOException e) {
             System.out.println(e);
         }//try-catch
@@ -182,6 +175,12 @@ class Server extends Thread{
                 System.out.println(i);
             }//try-catch
         }//while
+
+        //terminate socket on disconnect
+        out.writeUTF("Confirm");
+        System.out.println("Closing connection...");
+        socket.close();
+        in.close();
     }//run
 
     /*
@@ -256,8 +255,10 @@ class Server extends Thread{
                     out.write(buf,0,bytes);
                     out.flush();
                     for (int i : master.getTerminates()) {
-
-                    }
+                        if (id == i) {
+                            terminate = true;
+                        }//if
+                    }//for
                 }//while
                 sendFile.close();
                 System.out.println("File sent sucessfully...");
@@ -287,17 +288,28 @@ class Server extends Thread{
             //otherwise, receive the file contents and write to the file
             } else {
                 System.out.println("Recieving file...");
-                out.writeUTF("Ready");
+                int id = master.getPID();
+                out.writeUTF(id);
                 FileOutputStream recieveFile = new FileOutputStream(target);
+                Boolean terminate = false;
                 long size = in.readLong();
                 byte [] buf = new byte[4*1024];
                 int bytes = 0;
-                while (size > 0 && (bytes = in.read(buf,0,(int)Math.min(buf.length,size))) != -1) {
+                while (size > 0 && (bytes = in.read(buf,0,(int)Math.min(buf.length,size))) != -1 && !terminate) {
                     recieveFile.write(buf,0,bytes);
                     size -= bytes;
+                    for (int i : master.getTerminates()) {
+                        if (id == i) {
+                            terminate = true;
+                        }//if
+                    }//for
                 }//while
                 recieveFile.close();
-                System.out.println("File recieved sucessfully...");
+                if (terminate) {
+                    delete(filename);
+                } else {
+                    System.out.println("File recieved sucessfully...");
+                }//if-else
             }//if-else
 
         //catch any errors and print to server command line
