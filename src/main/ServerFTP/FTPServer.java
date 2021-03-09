@@ -150,10 +150,10 @@ class Controller{
     void addClient(Socket socket){
         for (int i = 0; i < clients.length(); i++) {
             if (clients[i].compareTo(null) == 0) {
-                s = new Server(socket, this);
+                clients[i] = new Server(socket, this);
                 break;
-            } else if (!s.isAlive()) {
-                s = new Server(socket, this);
+            } else if (!clients[i].isAlive()) {
+                clients[i] = new Server(socket, this);
                 break;
             }//if-else
         }//for
