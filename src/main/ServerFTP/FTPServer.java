@@ -120,6 +120,12 @@ class Controller{
     private int iterator = 0;
     private int processID = 0;
 
+    public Controller() {
+        for (int i = 0; i < clients.length(); i++) {
+            clients[i] = new Server(-1, this);
+        }//for
+    }//for
+
     void terminateProcess(int id){
         if (iterator >= 10) {
             iterator = 0;
@@ -138,7 +144,7 @@ class Controller{
 
     Boolean clientAvailable(){
         for (int i = 0; i < clients.length(); i++) {
-            if (clients[i].compareTo(null) == 0) {
+            if (clients[i].isNull()) {
                 return true;
             } else if (!s.isAlive()) {
                 return true;
@@ -149,7 +155,7 @@ class Controller{
 
     void addClient(Socket socket){
         for (int i = 0; i < clients.length(); i++) {
-            if (clients[i].compareTo(null) == 0) {
+            if (clients[i].isNull()) {
                 clients[i] = new Server(socket, this);
                 break;
             } else if (!clients[i].isAlive()) {
@@ -163,6 +169,7 @@ class Controller{
 
 class Server extends Thread{
 
+    private Boolean dummy = false;
     private Controller master = null;
     private Socket socket = null;
     private ServerSocket server = null;
@@ -176,14 +183,18 @@ class Server extends Thread{
             master = host;
             socket = port;
 
-            //store starting directory to memory
-            currentDirectory = System.getProperty("user.dir");
-            relativeDirectory = "";
+            if (socket == -1) {
+                dummy = true;
+            } else {
+                //store starting directory to memory
+                currentDirectory = System.getProperty("user.dir");
+                relativeDirectory = "";
 
-            //set up data input and output streams and initialize IO storage variable
-            in = new DataInputStream(socket.getInputStream());
-            out = new DataOutputStream(socket.getOutputStream());
-            run();
+                //set up data input and output streams and initialize IO storage variable
+                in = new DataInputStream(socket.getInputStream());
+                out = new DataOutputStream(socket.getOutputStream());
+                run();
+            }//if-else
         }catch (IOException e) {
             System.out.println(e);
         }//try-catch
@@ -209,6 +220,10 @@ class Server extends Thread{
             System.out.println(i);
         }//try-catch
     }//run
+
+    public Boolean isNull(){
+        return dummy;
+    }//isNull
 
     /*
     * Takes the input commands given in the input stream and redirects the argument to the method
