@@ -312,7 +312,7 @@ class Server extends Thread{
                 out.writeInt(id);
                 FileInputStream sendFile = new FileInputStream(target);
                 out.writeLong(target.length());
-                byte [] buf = new byte[4*1024];
+                byte [] buf = new byte[1000];
                 int bytes = 0;
                 while((bytes = sendFile.read(buf)) != -1 && !terminate) {
                     out.write(buf,0,bytes);
@@ -356,7 +356,7 @@ class Server extends Thread{
                 FileOutputStream recieveFile = new FileOutputStream(target);
                 Boolean terminate = false;
                 long size = in.readLong();
-                byte [] buf = new byte[4*1024];
+                byte [] buf = new byte[1000];
                 int bytes = 0;
                 while (size > 0 && (bytes = in.read(buf,0,(int)Math.min(buf.length,size))) != -1 && !terminate) {
                     recieveFile.write(buf,0,bytes);
