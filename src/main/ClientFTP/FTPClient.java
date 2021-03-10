@@ -219,6 +219,7 @@ class Client{
 			//reads file if it exists
 			else if (message.compareTo("Ready") == 0) {
 				System.out.println("Recieving File ...");
+                int processID = input.readInt();
 				File f = new File(file);
 				FileOutputStream fileOutput = new FileOutputStream(f);
 				long size = input.readLong();
@@ -257,6 +258,7 @@ class Client{
 					//reads file if it exists
 					else if (message.compareTo("Ready") == 0) {
 						System.out.println("Recieving File ...");
+                        int processID = input.readInt();
 						File f = new File(file);
 						FileOutputStream fileOutput = new FileOutputStream(f);
 						long size = input.readLong();
@@ -296,6 +298,7 @@ class Client{
 			//sends file to the server
 			else if (serverMessage.compareTo("Ready") == 0) {
 				System.out.println("Sending File ...");
+                int processID = input.readInt();
 
 				FileInputStream fileInput = new FileInputStream(f);
 				out.writeLong(f.length());
@@ -334,6 +337,7 @@ class Client{
 					//sends file to the server
 					else if (serverMessage.compareTo("Ready") == 0) {
 						System.out.println("Sending File ...");
+                        int processID = input.readInt();
 
 						FileInputStream fileInput = new FileInputStream(f);
 						out.writeLong(f.length());
