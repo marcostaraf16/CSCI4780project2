@@ -230,7 +230,6 @@ class Client{
 					size -= bytes;
 				}
 				fileOutput.close();
-				System.out.println(input.readUTF());
 			}//if-else
 		}//try
 		catch(Exception e) {
@@ -269,8 +268,6 @@ class Client{
 							size -= bytes;
 						}
 						fileOutput.close();
-						System.out.println(input.readUTF());
-						System.out.println(input.readUTF());
 					}//if-else
 				}//try
 				catch(Exception e) {
@@ -309,7 +306,6 @@ class Client{
 					out.flush();
 				}
 				fileInput.close();
-				//System.out.println(input.readUTF());
 			}
 		}//try
 		catch (Exception e) {
@@ -348,7 +344,6 @@ class Client{
 							out.flush();
 						}
 						fileInput.close();
-						System.out.println(input.readUTF());
 					}
 				}//try
 				catch (Exception e) {
