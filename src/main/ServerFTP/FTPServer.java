@@ -66,9 +66,11 @@ class Operator extends Thread{
         }
     }//constructor
 
+    @Override
     public void run(){
         try{
             while (true){
+                client = new Socket();
                 client = server.accept();
                 if (middle.clientAvailable()) {
                     middle.addClient(client);
@@ -163,13 +165,18 @@ class Controller{
     void addClient(Socket socket){
         for (int i = 0; i < 5; i++) {
             if (clients[i].isNull()) {
+                System.out.println("Controller adding client...");
                 clients[i] = new Server(socket, this);
-                break;
+                clients[i].start();
+                return;
             } else if (!clients[i].isAlive()) {
+                System.out.println("Controller updating client...");
                 clients[i] = new Server(socket, this);
-                break;
+                clients[i].start();
+                return;
             }//if-else
         }//for
+
     }//addClient
 
 }//controller
@@ -203,16 +210,18 @@ class Server extends Thread{
             //set up data input and output streams and initialize IO storage variable
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
-            run();
+            System.out.println("Server initialized...");
         }catch (IOException e) {
             System.out.println("Error in Server constructor");
             System.out.println(e);
         }//try-catch
     }//constructor
 
+    @Override
     public void run(){
         try {
             //process all inputs from the client
+            System.out.println("Server running...");
             String input = "";
             while(!input.equals("quit")){
                 input = in.readUTF();
