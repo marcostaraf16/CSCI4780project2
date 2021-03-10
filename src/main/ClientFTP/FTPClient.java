@@ -87,6 +87,7 @@ public class FTPClient {
 				}//while
 			}//try
 			catch (Exception e) {
+                System.out.println("Error in FTPClient.main()");
 				System.out.println(e);
 			}//catch
 		}//main
@@ -115,6 +116,7 @@ class Client{
 			buf = new BufferedReader(new InputStreamReader(System.in));
 		}//try
 		catch (Exception e) {
+            System.out.println("Error in Client constructor");
 			System.out.println(e);
 		}//catch
 	}//constructor
@@ -128,7 +130,10 @@ class Client{
 			String directory = input.readUTF();
 			System.out.println("Current Directory: " + directory);
 		}//try
-		catch (Exception e) {System.out.println(e);}
+		catch (Exception e) {
+            System.out.println("Error in Client.pwd()");
+            System.out.println(e);
+        }
 	}//pwd
 
 	void cd(String directory){
@@ -136,6 +141,7 @@ class Client{
 			out.writeUTF("cd " + directory);
 		}//try
 		catch (Exception e){
+            System.out.println("Error in Client.cd()");
 			System.out.println(e);
 		}//catch
 	}//cd
@@ -147,7 +153,10 @@ class Client{
 			out.close();
 			soc.close();
 		}//try
-		catch (Exception e) {System.out.println(e);}
+		catch (Exception e) {
+            System.out.println("Error in Client.quit()");
+            System.out.println(e);
+        }
 	}//quit
 
 	void makeDirectory(String directory) {
@@ -155,7 +164,10 @@ class Client{
 		try {
 		out.writeUTF("mkdir " + directory);
 		}//try
-		catch (Exception e) {System.out.println(e);}
+		catch (Exception e) {
+            System.out.println("Error in Client.makeDirectory()");
+            System.out.println(e);
+        }
 	}//makeDirectory
 
 	void delete(String file) {
@@ -164,7 +176,10 @@ class Client{
 			String message = input.readUTF();
 			System.out.println(message);
 		}//try
-		catch (Exception e) {System.out.println(e);}
+		catch (Exception e) {
+            System.out.println("Error in Client.delete()");
+            System.out.println(e);
+        }
 	}//delete
 
 	void listFiles() {
@@ -182,7 +197,10 @@ class Client{
 				System.out.println(fileAry[i]);
 			}//for
 		}//try
-		catch (Exception e) {System.out.println(e);}
+		catch (Exception e) {
+            System.out.println("Error in Client.listFiles()");
+            System.out.println(e);
+        }
 	}//listFiles
 
 	void get (String file) {
@@ -214,7 +232,10 @@ class Client{
 				System.out.println(input.readUTF());
 			}//if-else
 		}//try
-		catch(Exception e) {System.out.println(e);}
+		catch(Exception e) {
+            System.out.println("Error in Client.get()");
+            System.out.println(e);
+        }
 	}
 
 	void threadedGet(String file) {
@@ -250,7 +271,10 @@ class Client{
 						System.out.println(input.readUTF());
 					}//if-else
 				}//try
-				catch(Exception e) {System.out.println(e);}
+				catch(Exception e) {
+                    System.out.println("Error in Client.threadedGet().inThread");
+                    System.out.println(e);
+                }
 			}
 		};
 		inThread.start();
@@ -285,7 +309,10 @@ class Client{
 				//System.out.println(input.readUTF());
 			}
 		}//try
-		catch (Exception e) {System.out.println(e);}
+		catch (Exception e) {
+            System.out.println("Error in Client.put()");
+            System.out.println(e);
+        }
 	}
 
 	void threadedPut(String file) {
@@ -320,7 +347,10 @@ class Client{
 						System.out.println(input.readUTF());
 					}
 				}//try
-				catch (Exception e) {System.out.println(e);}
+				catch (Exception e) {
+                    System.out.println("Error in Client.threadedPut().outThread");
+                    System.out.println(e);
+                }
 			}
 		};
 		outThread.start();
@@ -328,7 +358,11 @@ class Client{
 
 	void terminate(String commandID) {
 		try {
-			terminateOut.writeUTF(commandID);
-		}catch (Exception e) {System.out.println(e);}
+            int id = Integer.parseInt(commandID);
+			terminateOut.writeInt(id);
+		}catch (Exception e) {
+            System.out.println("Error in Client.terminate()");
+            System.out.println(e);
+        }
 	}
 }//Client
