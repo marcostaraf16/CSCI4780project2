@@ -309,6 +309,7 @@ class Server extends Thread{
                 System.out.println("Sending file...");
                 Boolean terminate = false;
                 int id = master.getPID();
+                out.writeUTF("Ready");
                 out.writeInt(id);
                 FileInputStream sendFile = new FileInputStream(target);
                 out.writeLong(target.length());
@@ -352,6 +353,7 @@ class Server extends Thread{
             } else {
                 System.out.println("Recieving file...");
                 int id = master.getPID();
+                out.writeUTF("Ready");
                 out.writeInt(id);
                 FileOutputStream recieveFile = new FileOutputStream(target);
                 Boolean terminate = false;
