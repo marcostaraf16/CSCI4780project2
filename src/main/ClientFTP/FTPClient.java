@@ -189,12 +189,12 @@ class Client{
 			int count = 0;
 			count = input.readInt();
 			path = input.readUTF();
-			System.out.println(count);
+			// System.out.println(count);
 			File [] fileAry = new File[count];
 			for (int i=0; i<count;i++) {
 				String name = input.readUTF();
-				fileAry[i] = new File(path + "/" + name);
-				System.out.println(fileAry[i]);
+				// fileAry[i] = new File(path + "/" + name);
+				System.out.println(name);
 			}//for
 		}//try
 		catch (Exception e) {
