@@ -51,13 +51,13 @@ public class FTPClient {
 
 					//redirect the argument to the appropriate method
 					if (split[0].compareTo("get") == 0) {
-						if (split[2].compareTo("&") == 0)
+						if (split.length() > 2 && split[2].compareTo("&") == 0)
 							client.threadedGet(split[1]);
 						else
 							client.get(split[1]);
 					}
 					else if (split[0].compareTo("put") == 0) {
-						if (split[2].compareTo("&") == 0)
+						if (split.length() > 2 && split[2].compareTo("&") == 0)
 							client.threadedPut(split[1]);
 						else
 							client.put(split[1]);
