@@ -223,7 +223,7 @@ class Client{
 				File f = new File(file);
 				FileOutputStream fileOutput = new FileOutputStream(f);
 				long size = input.readLong();
-				byte [] buf = new byte[4*1024];
+				byte [] buf = new byte[1000];
 				int bytes = 0;
 				while (size > 0 && (bytes = input.read(buf,0,(int)Math.min(buf.length,size))) != -1) {
 					fileOutput.write(buf,0,bytes);
@@ -262,7 +262,7 @@ class Client{
 						File f = new File(file);
 						FileOutputStream fileOutput = new FileOutputStream(f);
 						long size = input.readLong();
-						byte [] buf = new byte[4*1024];
+						byte [] buf = new byte[1000];
 						int bytes = 0;
 						while (size > 0 && (bytes = input.read(buf,0,(int)Math.min(buf.length,size))) != -1) {
 							fileOutput.write(buf,0,bytes);
@@ -302,7 +302,7 @@ class Client{
 
 				FileInputStream fileInput = new FileInputStream(f);
 				out.writeLong(f.length());
-				byte [] buf = new byte[4*1024];
+				byte [] buf = new byte[1000];
 				int bytes = 0;
 				while ((bytes = fileInput.read(buf))!= -1) {
 					out.write(buf,0,bytes);
@@ -341,7 +341,7 @@ class Client{
 
 						FileInputStream fileInput = new FileInputStream(f);
 						out.writeLong(f.length());
-						byte [] buf = new byte[4*1024];
+						byte [] buf = new byte[1000];
 						int bytes = 0;
 						while ((bytes = fileInput.read(buf))!= -1) {
 							out.write(buf,0,bytes);
