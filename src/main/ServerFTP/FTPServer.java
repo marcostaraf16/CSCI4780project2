@@ -1,5 +1,6 @@
 package ServerFTP;
 
+
 import java.util.*;
 import java.io.*;
 import java.net.*;
@@ -35,10 +36,11 @@ class MyFTPServer{
     public static void main(String[] args) {
         try {
             Controller middle = new Controller();
+            Controller middle1 = new Controller();
             final Operator operator = new Operator(args[0], middle);
-            final Terminator terminator = new Terminator(args[1], middle);
+            final Terminator terminator = new Terminator(args[1], middle1);
+            terminator.start();
             operator.run();
-            terminator.run();
         } catch(Exception error) {
             System.out.println("Error in MyFTPServer.main()");
             System.out.println(error);
@@ -109,7 +111,12 @@ class Terminator extends Thread{
     public void run(){
         try {
             while(true){
+            	socket = new Socket();
                 socket = listener.accept();
+                if (middle.clientAvailable()) {
+                    middle.addClient(socket);
+                    System.out.println("New Terminator Client Connected");
+                }//if
                 in = new DataInputStream(socket.getInputStream());
                 input = in.readInt();
                 middle.terminateProcess(input);
@@ -136,6 +143,7 @@ class Controller{
     }//for
 
     void terminateProcess(int id){
+    	System.out.println("terminateProcess called");
         if (iterator >= 10) {
             iterator = 0;
         }//if
