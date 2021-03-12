@@ -40,7 +40,7 @@ class MyFTPServer{
             final Operator operator = new Operator(args[0], middle);
             final Terminator terminator = new Terminator(args[1], middle1);
             terminator.start();
-            operator.run();
+            operator.start();
         } catch(Exception error) {
             System.out.println("Error in MyFTPServer.main()");
             System.out.println(error);
@@ -135,12 +135,21 @@ class Controller{
     private int[] termList = new int[10];
     private int iterator = 0;
     private int processID = 0;
+    private Boolean bool = false;
 
     public Controller() {
         for (int i = 0; i < 5; i++) {
             clients[i] = new Server(-1);
         }//for
     }//for
+    
+    Boolean getTerminate(){
+        return bool;
+    }
+    
+    void setTerminate(){
+        bool = false;
+    }
 
     void terminateProcess(int id){
     	System.out.println("terminateProcess called");
@@ -148,6 +157,8 @@ class Controller{
             iterator = 0;
         }//if
         termList[iterator] = id;
+        iterator++;
+        bool = true;
     }//terminateProcess
 
     int getPID(){
@@ -326,14 +337,16 @@ class Server extends Thread{
                 while((bytes = sendFile.read(buf)) != -1 && !terminate) {
                     out.write(buf,0,bytes);
                     out.flush();
-                    for (int i : master.getTerminates()) {
-                        if (id == i) {
-                            terminate = true;
-                        }//if
-                    }//for
+                    terminate = master.getTerminate();
+                    if (terminate)
+                        break;
                 }//while
                 sendFile.close();
-                System.out.println("File sent sucessfully...");
+                if (terminate){
+                    System.out.println("File transfer Cancelled");
+                    terminate = true;
+                } else
+                    System.out.println("File sent sucessfully...");
             }//if-else
 
         //if there is an error during sending, will print the error to the server comand line
@@ -369,17 +382,17 @@ class Server extends Thread{
                 byte [] buf = new byte[1000];
                 int bytes = 0;
                 while (size > 0 && (bytes = in.read(buf,0,(int)Math.min(buf.length,size))) != -1 && !terminate) {
+                    terminate = master.getTerminate();
                     recieveFile.write(buf,0,bytes);
                     size -= bytes;
-                    for (int i : master.getTerminates()) {
-                        if (id == i) {
-                            terminate = true;
-                        }//if
-                    }//for
+                    if (terminate)
+                        break;
                 }//while
                 recieveFile.close();
                 if (terminate) {
                     delete(filename);
+                    master.setTerminate();
+                    System.out.println("File Transfer Stopped");
                 } else {
                     System.out.println("File recieved sucessfully...");
                 }//if-else
