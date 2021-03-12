@@ -345,6 +345,7 @@ class Server extends Thread{
                 if (terminate){
                     System.out.println("File transfer Cancelled");
                     terminate = true;
+                    out.flush();
                 } else
                     System.out.println("File sent sucessfully...");
             }//if-else
