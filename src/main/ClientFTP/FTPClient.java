@@ -44,7 +44,7 @@ public class FTPClient {
 				*/
 				while (true) {
 					System.out.print("myftp> ");
-
+					
 					//parse the input into a command and argument
 					command = scan.nextLine();
 					String [] split = command.split(" ", 3);
@@ -80,11 +80,13 @@ public class FTPClient {
 					else if (split[0].compareTo("terminate") == 0){
 						client.terminate(split[1]);
 						client.stops();
+						client.clear();
 					}
 					else if (split[0].compareTo("quit") == 0) {
 						client.quit();
 						break;
 					}
+					
 				}//while
 			}//try
 			catch (Exception e) {
@@ -128,6 +130,12 @@ class Client{
 
 	void stops() {
 		bool = true;
+	}
+	
+	void clear() {
+		try {
+			input.skipBytes(50000);
+		}catch(Exception e){System.out.println(e);}
 	}
 
 	void pwd() {
@@ -193,6 +201,7 @@ class Client{
 		try {
 			out.writeUTF("ls");
 			int count = 0;
+			System.out.println("aaaaaa");
 			count = input.readInt();
 			path = input.readUTF();
 			// System.out.println(count);
@@ -270,11 +279,16 @@ class Client{
 						long size = input.readLong();
 						byte [] buf = new byte[1000];
 						int bytes = 0;
-						while (size > 0 && (bytes = input.read(buf,0,(int)Math.min(buf.length,size))) != -1) {
+						while (size > 0 && (bytes = input.read(buf,0,(int)Math.min(buf.length,size))) != -1 && bool == false) {
 							fileOutput.write(buf,0,bytes);
 							size -= bytes;
 						}
 						fileOutput.close();
+						input.skipBytes(3000);
+						if (bool == false) {
+							input.skipBytes(30000);
+							System.out.println("skip");
+						}
 					}//if-else
 				}//try
 				catch(Exception e) {
@@ -366,10 +380,11 @@ class Client{
 		try {
             int id = Integer.parseInt(commandID);
 			terminateOut.writeInt(id);
+			input.skipBytes(200000);
 		}catch (Exception e) {
             System.out.println("Error in Client.terminate()");
             System.out.println(e);
         }
 	}
-}//Client1
+}//Client
 
