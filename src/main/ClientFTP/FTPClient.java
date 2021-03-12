@@ -1,4 +1,4 @@
-package ClientFTP;
+
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -47,7 +47,7 @@ public class FTPClient {
 
 					//parse the input into a command and argument
 					command = scan.nextLine();
-					String [] split = command.split(" ", 2);
+					String [] split = command.split(" ", 3);
 
 					//redirect the argument to the appropriate method
 					if (split[0].compareTo("get") == 0) {
@@ -79,6 +79,7 @@ public class FTPClient {
 					}
 					else if (split[0].compareTo("terminate") == 0){
 						client.terminate(split[1]);
+						client.stops();
 					}
 					else if (split[0].compareTo("quit") == 0) {
 						client.quit();
@@ -95,19 +96,22 @@ public class FTPClient {
 
 
 class Client{
-
-	Socket soc;
-	Socket terminateSoc;
-	DataInputStream input;
-	DataOutputStream out;
-	BufferedReader buf;
-	DataOutputStream terminateOut;
+	
+	public static Boolean bool = false;
+	private Socket soc;
+	private Socket terminateSoc;
+	private DataInputStream input;
+	private DataOutputStream out;
+	private BufferedReader buf;
+	private DataOutputStream terminateOut;
+	//Thread t1 = new Thread();
+	//Thread t2 = new Thread();
 
 	Client(InetAddress server, int port, int tport){
 		try {
 			//sets up the socket between the server and the client
-			terminateSoc = new Socket(server, tport);
 			soc = new Socket(server, port);
+			terminateSoc = new Socket(server, tport);
 			System.out.println("Connected");
 			//set up data input and output streams
 			input = new DataInputStream(soc.getInputStream());
@@ -122,7 +126,9 @@ class Client{
 	}//constructor
 
 
-
+	void stops() {
+		bool = true;
+	}
 
 	void pwd() {
 		try {
@@ -239,7 +245,7 @@ class Client{
 	}
 
 	void threadedGet(String file) {
-		final Thread inThread = new Thread() {
+		Thread t2 = new Thread() {
 			@Override
 			public void run() {
 				try {
@@ -258,7 +264,8 @@ class Client{
 					else if (message.compareTo("Ready") == 0) {
 						System.out.println("Recieving File ...");
                         int processID = input.readInt();
-						File f = new File(file);
+						System.out.println(processID);
+                        File f = new File(file);
 						FileOutputStream fileOutput = new FileOutputStream(f);
 						long size = input.readLong();
 						byte [] buf = new byte[1000];
@@ -276,7 +283,7 @@ class Client{
                 }
 			}
 		};
-		inThread.start();
+		t2.start();
 	}//get
 
 	void put(String file) {
@@ -315,7 +322,7 @@ class Client{
 	}
 
 	void threadedPut(String file) {
-		final Thread outThread = new Thread() {
+		Thread t1 = new Thread() {
 			@Override
 			public void run() {
 				File f = new File(file);
@@ -334,12 +341,12 @@ class Client{
 					else if (serverMessage.compareTo("Ready") == 0) {
 						System.out.println("Sending File ...");
                         int processID = input.readInt();
-
+                        System.out.println(processID);
 						FileInputStream fileInput = new FileInputStream(f);
 						out.writeLong(f.length());
 						byte [] buf = new byte[1000];
 						int bytes = 0;
-						while ((bytes = fileInput.read(buf))!= -1) {
+						while ((bytes = fileInput.read(buf))!= -1 && bool == false) {
 							out.write(buf,0,bytes);
 							out.flush();
 						}
@@ -352,7 +359,7 @@ class Client{
                 }
 			}
 		};
-		outThread.start();
+		t1.start();
 	}//put
 
 	void terminate(String commandID) {
@@ -364,4 +371,5 @@ class Client{
             System.out.println(e);
         }
 	}
-}//Client
+}//Client1
+
